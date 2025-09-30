@@ -1,9 +1,7 @@
 from django.contrib import admin
 from django.db.models import Count
-from django.contrib.contenttypes.admin import GenericTabularInline
 from django.urls import reverse
 from django.utils.html import format_html, urlencode
-from tags.models import TaggedItem, Tag
 from .models import OrderItem, Product, Collection, Customer, Order, Cart, Promotion
 # Register your models here.
 
@@ -37,10 +35,6 @@ class CollectionAdmin(admin.ModelAdmin):
   def get_queryset(self, request):
     return super().get_queryset(request).annotate(products_count=Count('product'))
 
-
-class TagInline(GenericTabularInline):
-  autocomplete_fields = ['tag']
-  model = TaggedItem
   
   
 @admin.register(Product)
@@ -48,7 +42,6 @@ class ProductAdmin(admin.ModelAdmin):
   list_display = ['title', 'unit_price', 'inventory_status', 'collection_title']
   list_editable = ['unit_price']
   list_filter = ['collection', 'last_update', InventoryFilter]
-  inlines = [TagInline]
   list_per_page = 10
   list_select_related = ['collection']
   search_fields = ['title__istartswith']
