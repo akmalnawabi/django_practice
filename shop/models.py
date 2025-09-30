@@ -11,6 +11,11 @@ class Collection(models.Model):
   title = models.CharField(max_length=200)
   featured_product = models.ForeignKey('Product', on_delete=models.SET_NULL, null=True, related_name='+')
   
+  def __str__(self) -> str:
+    return self.title
+  
+  class Meta:
+    ordering = ['title']
 
 class Product(models.Model):
   title = models.CharField(max_length=200)
@@ -21,6 +26,12 @@ class Product(models.Model):
   last_update = models.DateTimeField(auto_now=True)
   collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
   promotions = models.ManyToManyField(Promotion)
+  
+  def __str__(self) -> str:
+    return self.title
+  
+  class Meta:
+    ordering = ['title']
   
   
 class Customer(models.Model):
@@ -40,6 +51,11 @@ class Customer(models.Model):
   phone = models.CharField(max_length=200)
   birth_date = models.DateField(null=True)
 
+  def __str__(self) -> str:
+    return f"{self.first_name} {self.last_name}"
+  
+  class Meta:
+    ordering = ['first_name', 'last_name']
 
 class Order(models.Model):
   PAYMENT_STATUS_PENDING = 'P'
@@ -56,27 +72,55 @@ class Order(models.Model):
   payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
   customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
   
+  def __str__(self) -> str:
+    return f"{self.customer.first_name} {self.customer.last_name}"
   
+  class Meta:
+    ordering = ['customer__first_name', 'customer__last_name']
+  
+
 class OrderItem(models.Model):
   order = models.ForeignKey(Order, on_delete=models.PROTECT)
   product = models.ForeignKey(Product, on_delete=models.PROTECT)
   quantity = models.PositiveSmallIntegerField()
   unit_price = models.DecimalField(max_digits=6, decimal_places=2)
   
+  def __str__(self) -> str:
+    return f"{self.product.title} {self.quantity}"
   
+  class Meta:
+    ordering = ['product__title', 'quantity']
 
 class Address(models.Model):
   street = models.CharField(max_length=200)
   city = models.CharField(max_length=200)
   customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
   
+  def __str__(self) -> str:
+    return f"{self.customer.first_name} {self.customer.last_name}"
+  
+  class Meta:
+    ordering = ['customer__first_name', 'customer__last_name']
+  
 
 class Cart(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
+  
+  def __str__(self) -> str:
+    return f"{self.created_at}"
+  
+  class Meta:
+    ordering = ['created_at']
   
 
 class CartItem(models.Model):
   cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
   product = models.ForeignKey(Product, on_delete=models.CASCADE)
   quantity = models.PositiveSmallIntegerField()
+  
+  def __str__(self) -> str:
+    return f"{self.product.title} {self.quantity}"
+  
+  class Meta:
+    ordering = ['product__title', 'quantity']
   
